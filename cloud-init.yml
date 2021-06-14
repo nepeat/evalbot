@@ -3,11 +3,14 @@
 package_update: true
 
 packages:
+  - python3
+  - python3-pip
   - zsh
   - git-core
 
 runcmd:
   - git clone https://github.com/nepeat/evalbot.git /opt/evalbot
+  - pip3 install bottom
   - systemctl daemon-reload
   - systemctl enable --now evalbot
 
@@ -24,7 +27,7 @@ write_files:
       [Service]
       KillSignal=SIGINT
       Restart=always
-      ExecStart=zsh -c '/opt/evalbot/evalbot.sh piss.jar.owo.me:6697 $(hostname -s) #hamradio'
+      ExecStart=/bin/zsh -c 'cd /opt/evalbot && python3 evalbot.py piss.jar.owo.me 6697 $(hostname -s) \#hamradio'
 
       [Install]
       WantedBy=multi-user.target
