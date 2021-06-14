@@ -1,0 +1,31 @@
+#cloud-config
+# Update and upgrade all packages.
+package_update: true
+
+packages:
+  - zsh
+  - git-core
+
+runcmd:
+  - git clone https://github.com/nepeat/evalbot.git /opt/evalbot
+  - systemctl daemon-reload
+  - systemctl enable --now evalbot
+
+# Static files to write
+write_files:
+  - owner: root:root
+    path: /etc/systemd/system/evalbot.service
+    content: |
+      [Unit]
+      Description=evalbot
+      Requires=network-online.target
+      After=network-online.target
+
+      [Service]
+      KillSignal=SIGINT
+      Restart=always
+      ExecStart=zsh -c '/opt/evalbot/evalbot.sh piss.jar.owo.me:6697 $(hostname -s) #hamradio'
+
+      [Install]
+      WantedBy=multi-user.target
+
