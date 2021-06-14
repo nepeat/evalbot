@@ -21,9 +21,9 @@ do
 	line=$(printf %b "$raw" | tr -d $'\r')
 
 	echo "< $line"
-	if [ "$line" == "closed" ] then
+	if [ "$line" == "closed" ]; then
 		exit 1
-	else fi
+	fi
 
 	source tokenize.sh "$line"
 
