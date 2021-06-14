@@ -23,7 +23,8 @@ do
 	echo "< $line"
 	if [ "$line" == "closed" ] then
 		exit 1
-	fi
+	else fi
+
 	source tokenize.sh "$line"
 
 	case "$CMD" in
