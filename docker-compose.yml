@@ -3,6 +3,7 @@ services:
   bot:
     image: evalbot
     build: .
+    restart: always
     command:
         - python3
         - evalbot.py
