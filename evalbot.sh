@@ -4,15 +4,14 @@ DEETS="$1"
 NICK="$2"
 JOIN="$3"
 
-
-onconnect(){
-send "NICK $NICK"
-}
-send(){
-echo "> $1"
-printf "%b\r\n" "$1" >> sock
+send() {
+	echo "> $1"
+	printf "%b\r\n" "$1" >> sock
 }
 
+onconnect() {
+	send "NICK $NICK"
+}
 
 echo -e "USER $NICK 0 * :shell evaluation bot\r\n" > sock
 onconnect
@@ -22,6 +21,9 @@ do
 	line=$(printf %b "$raw" | tr -d $'\r')
 
 	echo "< $line"
+	if [ "$line" == "closed" ] then
+		exit 1
+	fi
 	source tokenize.sh "$line"
 
 	case "$CMD" in
@@ -47,5 +49,4 @@ do
 							done &
 	esac
 	eval set honk honk honk honk # clear the number vars so it wont repeat itself
-
 done
