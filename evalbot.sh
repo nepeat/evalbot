@@ -17,7 +17,7 @@ printf "%b\r\n" "$1" >> sock
 echo -e "USER $NICK 0 * :shell evaluation bot\r\n" > sock
 onconnect
 
-tail -f sock | openssl s_client "$DEETS" | while read -r raw
+tail -f sock | openssl s_client -connect "$DEETS" | while read -r raw
 do
 	line=$(printf %b "$raw" | tr -d $'\r')
 
