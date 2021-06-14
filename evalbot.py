@@ -1,7 +1,15 @@
+import logging
 import asyncio
 import sys
 import bottom
+import ssl
 
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
+
+state = {
+    "running": True
+}
 host = sys.argv[1]
 port = int(sys.argv[2])
 our_nick = sys.argv[3]
@@ -16,7 +24,7 @@ bot = bottom.Client(
 
 @bot.on("CLIENT_CONNECT")
 async def on_connect(**kwargs):
-    print(f"Connected to {host}:{port}!")
+    log.info(f"Connected to {host}:{port}")
     bot.send("NICK", nick=our_nick)
     bot.send("USER", user=our_nick, realname="shell evaluation bot")
 
@@ -32,8 +40,22 @@ async def on_connect(**kwargs):
     for future in pending:
         future.cancel()
 
-    print(f"Joining channel {channel}")
+    log.info(f"Joining channel {channel}")
     bot.send("JOIN", channel=channel)
+
+
+@bot.on("CLIENT_DISCONNECT")
+async def on_disconnect(**kwargs):
+    log.info("Disconnected!")
+    try:
+        await bot.connect()
+    except ssl.SSLError:
+        await asyncio.sleep(30)
+        log.info("Rate limited, sleeping 30 seconds before reconnecting.")
+        await bot.connect()
+    except Exception as e:
+        print(e)
+        state["running"] = False
 
 
 @bot.on("PING")
@@ -59,7 +81,7 @@ async def watch(stream):
 
 
 async def run_command(command: str):
-    print("running command: " + command, flush=True)
+    log.info("running command: " + command)
     process = await asyncio.create_subprocess_shell(command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
     await asyncio.gather(
         watch(process.stdout),
@@ -67,8 +89,16 @@ async def run_command(command: str):
     )
 
 
+async def main():
+    # Kick off the first connection.
+    await bot.connect()
+
+    # Infinitely wait while running.
+    while state["running"]:
+        await asyncio.sleep(1)
+
+
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    loop.create_task(bot.connect())
-    loop.run_forever()
+    loop.run_until_complete(main())
 
