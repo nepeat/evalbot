@@ -1,0 +1,12 @@
+version: "3.6"
+services:
+  bot:
+    image: evalbot
+    build: .
+    command:
+        - python3
+        - evalbot.py
+        - piss.jar.owo.me
+        - "6697" 
+        - evalbot-docker
+        - "#hamradio"
